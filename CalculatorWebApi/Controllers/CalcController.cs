@@ -13,28 +13,28 @@ namespace CalculatorWebApi.Controllers
 
         // POST api/Calc
         [HttpPost]
-        public  async Task<ActionResult<double>> Post([FromBody] Calculator calculator) 
+        public  ActionResult<double> Post([FromBody] ArgumentsModel model) 
         {
             double? result = null;
 
-            if (calculator == null) return BadRequest("Неверно указаны аргументы");
+            if (model == null) return BadRequest("Неверно указаны аргументы");
 
-            switch (calculator.Operation)
+            switch (model.Operation)
             {
                 case "sum":
-                    result =  calculator.FirstDigit + calculator.SecondDigit;
+                    result =  CalculatorFunction.Sum(model.FirstDigit, model.SecondDigit);
                     break;
                 case "multiply":
-                    result = calculator.FirstDigit * calculator.SecondDigit;
+                    result = CalculatorFunction.Multiply(model.FirstDigit, model.SecondDigit);
                     break;
 
                     //TODO: Добавление новых операций 
                 default:
-                    break;
+                    return BadRequest("Неправильно указана операция");
+                    
             }
 
-            if (result == null) return BadRequest("Неправильно указана операция.");
-            else return await Task.FromResult(result);
+            return result;
         }
 
        

@@ -2,7 +2,7 @@
 
 namespace CalculatorWebApi.Models
 {
-    public class Calculator
+    public class ArgumentsModel
     {
         public double FirstDigit { get; set; }
 
