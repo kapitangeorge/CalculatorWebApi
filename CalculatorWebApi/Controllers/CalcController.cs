@@ -22,10 +22,10 @@ namespace CalculatorWebApi.Controllers
             switch (model.Operation)
             {
                 case "sum":
-                    result =  CalculatorFunction.Sum(model.FirstDigit, model.SecondDigit);
+                    result =  CalculatorFunctions.Sum(model.FirstDigit, model.SecondDigit);
                     break;
                 case "multiply":
-                    result = CalculatorFunction.Multiply(model.FirstDigit, model.SecondDigit);
+                    result = CalculatorFunctions.Multiply(model.FirstDigit, model.SecondDigit);
                     break;
 
                     //TODO: Добавление новых операций 

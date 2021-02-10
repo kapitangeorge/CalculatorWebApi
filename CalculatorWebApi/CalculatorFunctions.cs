@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 
 namespace CalculatorWebApi
 {
-    public class CalculatorFunction
+    public class CalculatorFunctions
     {
         public static double Sum(double x, double y) => x + y;
 

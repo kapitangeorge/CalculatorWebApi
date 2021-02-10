@@ -9,7 +9,7 @@ namespace CalculatorWebApi.Middlewares
 {
     public class MaxConcurrentRequestsMiddleware
     {
-        private readonly int _limit;
+        private readonly MaxConcurrentRequestsOption _options;
 
         private readonly RequestDelegate _next;
 
@@ -18,12 +18,12 @@ namespace CalculatorWebApi.Middlewares
         public MaxConcurrentRequestsMiddleware(RequestDelegate next, IOptions<MaxConcurrentRequestsOption> options)
         {
             _next = next;
-            _limit = options.Value.Limit;
+            _options = options.Value;
         }
 
         public async Task Invoke(HttpContext context)
         {
-            if (CheckLimit())
+            if (Interlocked.Increment(ref _concurrentRequestCount) > _options.Limit)
             {
                 context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
             }
@@ -33,30 +33,6 @@ namespace CalculatorWebApi.Middlewares
 
                 Interlocked.Decrement(ref _concurrentRequestCount);
             }
-        }
-
-        private bool CheckLimit()
-        {
-            bool limitExceeded;
-
-            int initialConcurrentRequestsCount, incrementedConcurrentRequestsCount;
-            do
-            {
-                limitExceeded = true;
-
-                initialConcurrentRequestsCount = _concurrentRequestCount;
-                if (initialConcurrentRequestsCount >= _limit)
-                {
-                    break;
-                }
-
-                limitExceeded = false;
-                incrementedConcurrentRequestsCount = initialConcurrentRequestsCount + 1;
-            }
-            while (initialConcurrentRequestsCount != Interlocked.CompareExchange(
-                ref _concurrentRequestCount, incrementedConcurrentRequestsCount, initialConcurrentRequestsCount));
-
-            return limitExceeded;
         }
     }
 }
