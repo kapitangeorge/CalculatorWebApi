@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -7,26 +9,23 @@ namespace CalculatorWebApi.Middlewares
 {
     public class MaxConcurrentRequestsMiddleware
     {
-        // Лимит одновременных запросов
-        private const int Limit = 10; 
-
-        private int _concurrentRequestCount;
-        
+        private readonly int _limit;
 
         private readonly RequestDelegate _next;
 
-        public MaxConcurrentRequestsMiddleware(RequestDelegate next)
+        private int _concurrentRequestCount;
+
+        public MaxConcurrentRequestsMiddleware(RequestDelegate next, IOptions<MaxConcurrentRequestsOption> options)
         {
             _next = next;
+            _limit = options.Value.Limit;
         }
 
         public async Task Invoke(HttpContext context)
         {
             if (CheckLimit())
             {
-                IHttpResponseFeature responseFeature = context.Features.Get<IHttpResponseFeature>();
-
-                responseFeature.StatusCode = StatusCodes.Status503ServiceUnavailable;
+                context.Response.StatusCode = StatusCodes.Status503ServiceUnavailable;
             }
             else
             {
@@ -46,7 +45,7 @@ namespace CalculatorWebApi.Middlewares
                 limitExceeded = true;
 
                 initialConcurrentRequestsCount = _concurrentRequestCount;
-                if (initialConcurrentRequestsCount >= Limit)
+                if (initialConcurrentRequestsCount >= _limit)
                 {
                     break;
                 }

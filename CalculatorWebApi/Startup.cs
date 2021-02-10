@@ -20,6 +20,8 @@ namespace CalculatorWebApi
         
         public void ConfigureServices(IServiceCollection services)
         {
+            services.Configure<MaxConcurrentRequestsOption>(Configuration.GetSection("MaxConcurrentRequestsOption"));
+
             services.AddControllers();
         }
 
